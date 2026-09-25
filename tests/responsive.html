@@ -1,0 +1,10 @@
+<!doctype html>
+<html lang="zh-CN"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>小说工作台 · 小屏验收</title>
+<style>body{font:16px/1.6 system-ui;margin:20px;background:#f4f5f3;color:#273339}button,select{font:inherit;padding:10px;margin-right:8px}iframe{display:block;height:820px;border:1px solid #aaa;box-sizing:content-box;background:white}pre{white-space:pre-wrap}#frame-wrap{overflow:auto;padding:8px 0}</style>
+<h1>固定宽度布局验收</h1><p>框内为隔离测试区，宽度由 iframe 决定。检查浏览器布局，不代替真实手机或输入法测试。</p>
+<label>页面宽度 <select id="width"><option>320</option><option>390</option><option>1280</option></select></label><button id="measure">检查当前页面宽度</button><pre id="result" role="status">等待检查</pre>
+<div id="frame-wrap"><iframe title="作者工作台测试区" src="../?qa=1" width="320"></iframe></div>
+<script>
+const frame=document.querySelector('iframe');document.getElementById('width').onchange=event=>frame.width=event.target.value;
+document.getElementById('measure').onclick=()=>{const d=frame.contentDocument,w=frame.contentWindow;const width=w.innerWidth,content=Math.max(d.documentElement.scrollWidth,d.body.scrollWidth);document.getElementById('result').textContent=`布局宽度 ${width}px；内容宽度 ${content}px；${content<=width?'通过：无页面横向溢出':'失败：页面出现横向溢出'}`;};
+</script></html>
