@@ -1,7 +1,7 @@
 {
   "name": "novel-workspace",
   "private": true,
-  "version": "0.3.1",
+  "version": "0.4.0",
   "description": "Build-time-only CRDT bundle for the optional collaborative editor",
   "scripts": {
     "build:crdt": "esbuild src/yjs-entry.mjs --bundle --format=esm --platform=browser --target=es2022 --minify --legal-comments=eof --outfile=vendor/yjs.mjs"

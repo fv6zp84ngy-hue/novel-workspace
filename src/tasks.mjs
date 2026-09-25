@@ -1,4 +1,4 @@
-import {escapeHTML as e} from './domain.mjs?v=0.3.1';
+import {escapeHTML as e} from './domain.mjs?v=0.4.0';
 
 export function tasksUI({repo,state,docs,currentWork,refresh,navigate,modal,closeModal,guard,notify,track=()=>{}}) {
   const $=id=>document.getElementById(id);

@@ -1,7 +1,7 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {makeBlueprint,SCENARIOS} from '../src/blueprint.mjs?v=0.3.1';
-import {createDocument,searchDocuments,escapeHTML,CATEGORIES,CATEGORY_HINTS,categorySuggestion} from '../src/domain.mjs?v=0.3.1';
+import {makeBlueprint,SCENARIOS} from '../src/blueprint.mjs?v=0.4.0';
+import {createDocument,searchDocuments,escapeHTML,CATEGORIES,CATEGORY_HINTS,categorySuggestion} from '../src/domain.mjs?v=0.4.0';
 
 test('eight novel scenarios create usable, explicit local structures',()=>{
   for(const s of SCENARIOS){const plan=makeBlueprint({intent:s.example,scenario:s.id});assert.equal(plan.scenario,s.id);assert.ok(plan.documents.some(d=>d.kind==='chapter'));assert.match(plan.documents[0].content,/不是 AI/);}

@@ -1,7 +1,7 @@
-import {makeBlueprint} from '../src/blueprint.mjs?v=0.3.1';
-import {importFile} from '../src/imports.mjs?v=0.3.1';
-import {Repository} from '../src/storage.mjs?v=0.3.1';
-import {searchDocuments,categorySuggestion,verifyBackup,digest,STORES,uid} from '../src/domain.mjs?v=0.3.1';
+import {makeBlueprint} from '../src/blueprint.mjs?v=0.4.0';
+import {importFile} from '../src/imports.mjs?v=0.4.0';
+import {Repository} from '../src/storage.mjs?v=0.4.0';
+import {searchDocuments,categorySuggestion,verifyBackup,digest,STORES,uid} from '../src/domain.mjs?v=0.4.0';
 const results=document.getElementById('results'),summary=document.getElementById('summary');
 const assert=(condition,message)=>{if(!condition)throw new Error(message);};
 document.getElementById('run').onclick=async()=>{

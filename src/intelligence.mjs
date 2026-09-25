@@ -1,4 +1,4 @@
-import {digest,CATEGORIES} from './domain.mjs?v=0.3.1';
+import {digest,CATEGORIES} from './domain.mjs?v=0.4.0';
 export function chunks(documents,workId){return documents.filter(d=>d.workId===workId&&!d.deletedAt&&d.content.trim()).flatMap(d=>{const out=[];for(let start=0;start<d.content.length;start+=900){out.push({id:d.id+':'+d.revision+':'+start,documentId:d.id,revision:d.revision,title:d.title,kind:d.kind,start,text:d.content.slice(start,start+1000)});if(start+1000>=d.content.length)break;}return out;});}
 export async function fingerprint(config){return digest(JSON.stringify([config.base,config.embeddingModel]));}
 export function validVector(v){return Array.isArray(v)&&v.length>0&&v.length<=8192&&v.every(x=>typeof x==='number'&&Number.isFinite(x))&&v.some(x=>x!==0);}

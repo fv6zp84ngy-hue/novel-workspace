@@ -1,7 +1,7 @@
-import {escapeHTML as e,CATEGORIES,CATEGORY_HINTS,verifyBackup,digest} from './domain.mjs?v=0.3.1';
-import {seal,decryptBackup} from './crypto.mjs?v=0.3.1';
-import {Services} from './services.mjs?v=0.3.1';
-import {chunks,fingerprint,vectors,rank,citations,classification,retentionPlan,chatText} from './intelligence.mjs?v=0.3.1';
+import {escapeHTML as e,CATEGORIES,CATEGORY_HINTS,verifyBackup,digest} from './domain.mjs?v=0.4.0';
+import {seal,decryptBackup} from './crypto.mjs?v=0.4.0';
+import {Services} from './services.mjs?v=0.4.0';
+import {chunks,fingerprint,vectors,rank,citations,classification,retentionPlan,chatText} from './intelligence.mjs?v=0.4.0';
 export function advancedUI({repo,state,flush,refresh,render,navigate,modal,closeModal,guard,notify,download}){
   const $=id=>document.getElementById(id),services=new Services();let running=false;
   const budget=()=>services.budget?`本会话已计入 ${services.budget.spent} / ${services.budget.limit} token（含失败请求保留额；以服务商账单为准）`:'尚未调用模型';

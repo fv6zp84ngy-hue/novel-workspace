@@ -1,4 +1,4 @@
-import {toBase64} from './domain.mjs?v=0.3.1';
+import {toBase64} from './domain.mjs?v=0.4.0';
 const encoder=new TextEncoder();
 export const ITERATIONS=600000;
 const aad=encoder.encode('novel-encrypted-v1');

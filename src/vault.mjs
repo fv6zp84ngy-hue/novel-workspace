@@ -1,6 +1,6 @@
-import {Repository} from './storage.mjs?v=0.3.1';
-import {STORES,ConflictError,digest,now} from './domain.mjs?v=0.3.1';
-import {deriveVaultKey,seal,unseal,inspectEnvelope,randomBytes} from './crypto.mjs?v=0.3.1';
+import {Repository} from './storage.mjs?v=0.4.0';
+import {STORES,ConflictError,digest,now} from './domain.mjs?v=0.4.0';
+import {deriveVaultKey,seal,unseal,inspectEnvelope,randomBytes} from './crypto.mjs?v=0.4.0';
 const request=r=>new Promise((resolve,reject)=>{r.onsuccess=()=>resolve(r.result);r.onerror=()=>reject(r.error);});
 const empty=()=>Object.fromEntries(STORES.map(s=>[s,[]]));
 export class VaultRepository extends Repository {

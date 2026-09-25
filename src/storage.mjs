@@ -1,5 +1,5 @@
-import {retentionPlan} from './intelligence.mjs?v=0.3.1';
-import {STORES,CATEGORIES,uid,now,createDocument,snapshot,ConflictError,digest,verifyBackup,remapBackup} from './domain.mjs?v=0.3.1';
+import {retentionPlan} from './intelligence.mjs?v=0.4.0';
+import {STORES,CATEGORIES,uid,now,createDocument,snapshot,ConflictError,digest,verifyBackup,remapBackup} from './domain.mjs?v=0.4.0';
 const req=request=>new Promise((resolve,reject)=>{request.onsuccess=()=>resolve(request.result);request.onerror=()=>reject(request.error);});
 export class Repository {
   constructor(name='novel-author-v1'){this.name=name;this.db=null;this.channel=typeof BroadcastChannel!=='undefined'?new BroadcastChannel(name):null;}

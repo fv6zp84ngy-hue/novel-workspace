@@ -1,4 +1,4 @@
-import {uid,now,digest,toBase64} from './domain.mjs?v=0.3.1';
+import {uid,now,digest,toBase64} from './domain.mjs?v=0.4.0';
 export const LIMITS={count:20,file:2*1024*1024,batch:20*1024*1024};
 export async function importFile(repo,workId,file,allowDuplicate=false){
   if(!/\.(txt|md)$/i.test(file.name))throw new Error('只支持 TXT 和 Markdown 文件。');

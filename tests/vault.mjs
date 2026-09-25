@@ -1,8 +1,8 @@
-import {Repository} from '../src/storage.mjs?v=0.3.1';
-import {VaultRepository} from '../src/vault.mjs?v=0.3.1';
-import {verifyBackup} from '../src/domain.mjs?v=0.3.1';
-import {MergeText} from '../src/live-core.mjs?v=0.3.1';
-import {seal,decryptBackup} from '../src/crypto.mjs?v=0.3.1';
+import {Repository} from '../src/storage.mjs?v=0.4.0';
+import {VaultRepository} from '../src/vault.mjs?v=0.4.0';
+import {verifyBackup} from '../src/domain.mjs?v=0.4.0';
+import {MergeText} from '../src/live-core.mjs?v=0.4.0';
+import {seal,decryptBackup} from '../src/crypto.mjs?v=0.4.0';
 const result=document.getElementById('results');
 const assert=(x,m)=>{if(!x)throw Error(m);};
 const reject=async fn=>{let rejected=false;try{await fn();}catch{rejected=true;}assert(rejected,'Expected rejection');};

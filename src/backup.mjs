@@ -1,5 +1,5 @@
-import {decryptBackup} from './crypto.mjs?v=0.3.1';
-import {escapeHTML as e,verifyBackup} from './domain.mjs?v=0.3.1';
+import {decryptBackup} from './crypto.mjs?v=0.4.0';
+import {escapeHTML as e,verifyBackup} from './domain.mjs?v=0.4.0';
 
 export function backupUI({repo,state,flush,modal,closeModal,refresh,chooseDoc,remember,render,guard,notify,track,download,trashModal,exportEncrypted}) {
   const $=id=>document.getElementById(id);

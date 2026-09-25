@@ -1,5 +1,5 @@
 import * as Y from '../vendor/yjs.mjs';
-import {toBase64} from './domain.mjs?v=0.3.1';
+import {toBase64} from './domain.mjs?v=0.4.0';
 const LIMIT=2*1024*1024;
 const decode=value=>{if(typeof value!=='string'||value.length>3*1024*1024)throw Error('协作数据超出上限');try{const raw=Uint8Array.from(atob(value),c=>c.charCodeAt(0));if(raw.length>LIMIT)throw Error('协作数据超出上限');return raw;}catch{throw Error('协作数据已损坏');}};
 export class MergeText {

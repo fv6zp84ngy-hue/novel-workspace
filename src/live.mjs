@@ -1,7 +1,7 @@
-import {MergeText,livePacket,readLivePacket} from './live-core.mjs?v=0.3.1';
-import {decryptBackup,encryptBackup} from './crypto.mjs?v=0.3.1';
-import {Services} from './services.mjs?v=0.3.1';
-import {escapeHTML as e} from './domain.mjs?v=0.3.1';
+import {MergeText,livePacket,readLivePacket} from './live-core.mjs?v=0.4.0';
+import {decryptBackup,encryptBackup} from './crypto.mjs?v=0.4.0';
+import {Services} from './services.mjs?v=0.4.0';
+import {escapeHTML as e} from './domain.mjs?v=0.4.0';
 const $=id=>document.getElementById(id);
 const base64=value=>btoa(String.fromCharCode(...new TextEncoder().encode(value)));
 const stableId=doc=>doc.syncId||doc.id;

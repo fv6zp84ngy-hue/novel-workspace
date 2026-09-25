@@ -12,8 +12,13 @@
 - 可选：连接自己的模型账户，按内容分类、建立增量向量索引、语义联想、带出处问答及草稿生成。
 - 可选：把加密快照保存到自己的 WebDAV 网盘；同一章节可进入协作编辑，数秒轮询并自动合并正文。
 - 历史容量预览，下载备份后清理旧版本；清理可重建的向量缓存。
+- 新增 Control / Treatment 首次使用路径、本地匿名漏斗事件、首次价值计算与离线汇总；不连接第三方分析服务。
 
-版本 0.3.1。资料名称、创作方向、故事想法和分类均可先留空；“待整理”会接住尚未想清楚的内容。分类补充人物、情节冲突、场景设定、线索时间等写作检索入口，且能随时改动。字段说明见 [必填与选填指南](docs/FIELD_GUIDE.md)。章节正文协作使用自己的 WebDAV 文件夹，打开期间约每 3 秒检查并自动合并文字；实际延迟取决于网盘和网络。整库加密快照仍保留手动备份。合成服务与双窗口已验收，真实网盘、跨实体设备和付费模型尚待验证。
+版本 0.4.0。资料名称、创作方向、故事想法和分类均可先留空；“待整理”会接住尚未想清楚的内容。分类补充人物、情节冲突、场景设定、线索时间等写作检索入口，且能随时改动。字段说明见 [必填与选填指南](docs/FIELD_GUIDE.md)。首次入口可用 `?onboarding=control` 固定旧版流程，或 `?onboarding=treatment` 测试“新故事 / 已有内容很散”两条路径。Treatment 的自然语言输入会作为“创作起点”保存在本机，即使没配置模型也会生成可编辑作品；AI 不会在创建时自动接收输入。
+
+本地漏斗检查页：[debug/funnel.html](debug/funnel.html)。事件保存在独立 IndexedDB，不采集正文、Prompt 原文、名称、搜索词、文件路径、模型响应或凭据。测试者可手动导出 JSON；将多份导出放进一个目录后运行 `python3 scripts/analyze_funnel.py ./导出目录`，离线查看各步骤完成率、中位 TTFA 与 TTFV。深度交互指同一会话完成三种不同核心行为。当前没有真实用户埋点数据或显著性结论。
+
+章节正文协作使用自己的 WebDAV 文件夹，打开期间约每 3 秒检查并自动合并文字；实际延迟取决于网盘和网络。整库加密快照仍保留手动备份。合成服务与双窗口已验收，真实网盘、跨实体设备和付费模型尚待验证。既往业务数据与本项目原型结果分开记录，不代表本项目测试结果。
 
 ## 三步开始
 
@@ -48,6 +53,7 @@ python3 -B scripts/build_release.py
 - [窄屏布局](tests/responsive.html) / [性能抽样](tests/performance.html)：合成验证，不代替真实设备。
 - [PRD](docs/PRD.md) / [Spec](docs/SPEC.md) / [设计](docs/DESIGN.md) / [分步开发](docs/DEVELOPMENT.md)
 - [字段与分类设计](docs/FIELD_GUIDE.md) / [需求核对](docs/REQUIREMENTS.md)
+- [项目机器可读规格](docs/PROJECT.json) / [本地漏斗检查页](debug/funnel.html)
 - [测试记录](docs/TEST_REPORT.md) / [设备与真实服务验收](docs/ACCEPTANCE.md) / [风险](docs/RISK_REVIEW.md)
 - [发布步骤](docs/PUBLISHING.md) / [安全](SECURITY.md) / [贡献](CONTRIBUTING.md)
 

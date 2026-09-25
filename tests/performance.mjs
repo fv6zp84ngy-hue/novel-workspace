@@ -1,5 +1,5 @@
-import {Repository} from '../src/storage.mjs?v=0.3.1';
-import {createDocument,snapshot,searchDocuments,verifyBackup} from '../src/domain.mjs?v=0.3.1';
+import {Repository} from '../src/storage.mjs?v=0.4.0';
+import {createDocument,snapshot,searchDocuments,verifyBackup} from '../src/domain.mjs?v=0.4.0';
 const button=document.getElementById('run'),output=document.getElementById('results');
 button.onclick=async()=>{
   button.disabled=true;output.textContent='正在准备隔离测试数据…';const name='novel-test-performance-'+crypto.randomUUID();const repo=new Repository(name);
