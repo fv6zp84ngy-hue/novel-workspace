@@ -1,17 +1,20 @@
 const DB_NAME = 'novel-workspace-analytics-v1';
 const STORE = 'events';
-const FUNNEL_VERSION = '0.4.0';
+export const FUNNEL_VERSION = '0.4.1';
+let lastTimestamp = 0;
 const MAX_EVENTS = 10000;
 const EVENTS = new Set([
   'onboarding_view', 'route_selected', 'entry_mode_selected', 'intent_submitted',
   'input_completed', 'import_started', 'import_succeeded', 'paste_saved',
   'workspace_created', 'first_artifact_ready', 'edit_saved', 'material_captured',
   'search_started', 'search_result_opened', 'material_linked', 'ai_enrichment_result',
-  'first_value_completed', 'deep_interaction'
+  'first_value_completed', 'deep_interaction', 'scenario_impression', 'scenario_selected'
 ]);
 const ROUTES = new Set(['new_story', 'migrate_existing']);
 const ENTRY_MODES = new Set(['natural_language', 'template', 'blank', 'paste', 'file']);
+export const SCENARIO_IDS = ['starter','character','outline','migration','world','timeline','clues','research'];
 const ENUMS = {
+  scenario_id: new Set(SCENARIO_IDS),
   source: new Set(['onboarding', 'editor', 'library', 'search', 'assistant']),
   result: new Set(['success', 'failure']),
   reason: new Set(['unavailable', 'not_configured', 'network', 'invalid_response']),
@@ -43,13 +46,17 @@ function openDb() {
   });
 }
 
-export function getSessionId() {
-  let id = sessionStorage.getItem('nw_session_id');
-  if (!id) {
-    id = crypto.randomUUID();
-    sessionStorage.setItem('nw_session_id', id);
-  }
+export function startFunnelSession() {
+  const id = crypto.randomUUID();
+  sessionStorage.setItem('nw_session_id', id);
+  sessionStorage.setItem('nw_session_scope', `${FUNNEL_VERSION}:${getVariant()}`);
   return id;
+}
+
+export function getSessionId() {
+  const scope = `${FUNNEL_VERSION}:${getVariant()}`;
+  if (sessionStorage.getItem('nw_session_scope') !== scope) return startFunnelSession();
+  return sessionStorage.getItem('nw_session_id') || startFunnelSession();
 }
 
 export function getVariant() {
@@ -94,7 +101,7 @@ export async function track(eventName, context = {}, props = {}) {
   const event = {
     id: crypto.randomUUID(),
     event_name: eventName,
-    ts_ms: Date.now(),
+    ts_ms: (lastTimestamp = Math.max(Date.now(), lastTimestamp + 1)),
     session_id: getSessionId(),
     funnel_version: FUNNEL_VERSION,
     variant: getVariant(),

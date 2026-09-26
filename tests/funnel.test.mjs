@@ -1,12 +1,12 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {webcrypto} from 'node:crypto';
-import {bucketCount,bucketLength,getSessionId,getVariant,sanitizeProps} from '../src/analytics.mjs?v=0.4.0';
-import {applyFunnelEvent,claimDerivedEvents,createFunnelState,replayFunnelState} from '../src/funnel.mjs?v=0.4.0';
+import {bucketCount,bucketLength,getSessionId,getVariant,sanitizeProps,FUNNEL_VERSION,startFunnelSession} from '../src/analytics.mjs?v=0.4.1';
+import {applyFunnelEvent,claimDerivedEvents,createFunnelState,replayFunnelState,is_user_action} from '../src/funnel.mjs?v=0.4.1';
 import {makeBlueprint} from '../src/blueprint.mjs?v=0.4.0';
 
 function event(session,event_name,{route=null,props={}}={}){
-  return {id:crypto.randomUUID(),session_id:session,event_name,route,props,ts_ms:Date.now()};
+  return {id:crypto.randomUUID(),session_id:session,event_name,route,props:{source:'library',...props},funnel_version:FUNNEL_VERSION,ts_ms:Date.now()};
 }
 function send(state,name,options={}){
   applyFunnelEvent(state,event(state.sessionId,name,options));
@@ -33,7 +33,7 @@ test('session id remains stable for one tab and URL experiment variant wins',()=
   try{
     const first=getSessionId();assert.equal(getSessionId(),first);assert.equal(getVariant(),'control');
     Object.defineProperty(globalThis,'location',{configurable:true,value:{search:'?onboarding=treatment'}});
-    assert.equal(getVariant(),'treatment');assert.equal(getSessionId(),first);
+    assert.equal(getVariant(),'treatment');assert.notEqual(getSessionId(),first);const second=getSessionId();assert.equal(getSessionId(),second);assert.notEqual(startFunnelSession(),second);
     const secondValues=new Map(),secondStorage={getItem:key=>secondValues.get(key)||null,setItem:(key,value)=>secondValues.set(key,String(value))};
     Object.defineProperty(globalThis,'sessionStorage',{configurable:true,value:secondStorage});
     assert.notEqual(getSessionId(),first);
@@ -88,4 +88,47 @@ test('local natural-language fallback keeps the original idea in an editable sta
   const startingPoint=plan.documents.find(doc=>doc.title==='创作起点');
   assert.ok(startingPoint);assert.equal(startingPoint.content,raw);assert.equal(startingPoint.category,'inspiration');
   assert.equal(plan.hasCapturedIntent,true);assert.ok(plan.documents.some(doc=>doc.kind==='chapter'));
+});
+
+
+test('Case A auto capture never activates; Case B later saved title/edit does',()=>{
+  const s=createFunnelState('cases');
+  send(s,'first_artifact_ready',{route:'new_story',props:{source:'onboarding'}});
+  assert.deepEqual(send(s,'material_captured',{props:{source:'onboarding'}}),[]);
+  assert.equal(s.artifact,true);assert.equal(s.firstValueSent,false);assert.equal(s.coreActions.size,0);
+  assert.deepEqual(send(s,'edit_saved',{props:{source:'editor',save_state:'saved'}}),['first_value_completed']);
+});
+
+test('automatic, unknown-source and failed actions cannot contribute to deep interaction',()=>{
+  const s=createFunnelState('sources');
+  for(const name of ['edit_saved','material_captured','search_result_opened','material_linked']){
+    send(s,name,{props:{source:'onboarding',save_state:'saved'}});
+    send(s,name,{props:{source:null,save_state:'saved'}});
+    send(s,name,{props:{result:'failure',save_state:'saved'}});
+  }
+  send(s,'edit_saved',{props:{save_state:'failed'}});
+  assert.equal(s.coreActions.size,0);assert.equal(s.deepSent,false);
+  assert.equal(is_user_action({event_name:'edit_saved',props:{source:'editor'}}),false);
+});
+
+test('first value requires active action after artifact/import, never retroactive credit',()=>{
+  const s=createFunnelState('order');
+  send(s,'edit_saved',{route:'new_story',props:{save_state:'saved'}});
+  send(s,'material_captured');
+  assert.deepEqual(send(s,'first_artifact_ready'),[]);assert.equal(s.firstValueSent,false);
+  const m=createFunnelState('migration-order');
+  send(m,'search_result_opened',{route:'migrate_existing'});
+  assert.deepEqual(send(m,'import_succeeded'),[]);assert.equal(m.firstValueSent,false);
+  assert.deepEqual(send(m,'material_linked'),['first_value_completed']);
+});
+
+test('0.4.0 derived flags and automatic capture do not contaminate current replay',()=>{
+  const sid='legacy';
+  const rows=['first_artifact_ready','material_captured','first_value_completed','deep_interaction'].map(name=>({...event(sid,name,{route:'new_story'}),funnel_version:'0.4.0'}));
+  const s=replayFunnelState(rows,sid);assert.equal(s.artifact,false);assert.equal(s.firstValueSent,false);assert.equal(s.deepSent,false);
+});
+
+test('scenario telemetry allows only fixed identifiers, never custom manuscript strings',()=>{
+  assert.deepEqual(sanitizeProps({scenario_id:'character'}),{scenario_id:'character'});
+  assert.deepEqual(sanitizeProps({scenario_id:'private character name',input_mode:'private intent'}),{});
 });

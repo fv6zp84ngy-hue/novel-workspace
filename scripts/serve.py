@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """Loopback-only static server with an explicit public-file allowlist."""
 import argparse
+import webbrowser
 from functools import partial
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 import json
@@ -88,17 +89,28 @@ class Handler(SimpleHTTPRequestHandler):
         super().end_headers()
 
 if __name__ == '__main__':
-    PUBLIC_FILES = set(json.loads((ROOT / 'release-manifest.json').read_text())['files'])
+    PUBLIC_FILES = set(json.loads((ROOT / 'release-manifest.json').read_text(encoding='utf-8'))['files'])
     parser = argparse.ArgumentParser(description='Start Novel Workspace locally')
     parser.add_argument('--port', type=int, default=8765)
+    parser.add_argument('--open', action='store_true', help='Open the local app in the default browser')
     args = parser.parse_args()
-    server = ThreadingHTTPServer(('127.0.0.1', args.port), partial(Handler, directory=str(ROOT)))
+    try:
+        server = ThreadingHTTPServer(('127.0.0.1', args.port), partial(Handler, directory=str(ROOT)))
+    except OSError:
+        raise SystemExit('该端口无法启动。请先停止占用原端口的旧程序，再重新启动；不会自动换端口，以免打开另一份资料库。')
     def expire_sessions():
         while True:
             time.sleep(60)
             purge_sessions()
     threading.Thread(target=expire_sessions,daemon=True).start()
     print(f'Novel Workspace: http://127.0.0.1:{args.port}/', flush=True)
+    if args.open:
+        def open_browser():
+            try:
+                webbrowser.open(f'http://127.0.0.1:{args.port}/')
+            except Exception:
+                print('浏览器未能自动打开，请手动打开上方网址。', flush=True)
+        threading.Timer(0.5, open_browser).start()
     try:
         server.serve_forever()
     except KeyboardInterrupt:

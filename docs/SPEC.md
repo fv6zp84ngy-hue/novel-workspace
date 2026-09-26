@@ -1,4 +1,4 @@
-# 技术规格 · 0.4.0
+# 技术规格 · 0.4.1
 
 原生 HTML / CSS / ES Modules、浏览器 WebCrypto / IndexedDB、Python 标准库本机网关、Node 内置测试。浏览器发布包内置固定版本的 Yjs / lib0 MIT 组件，运行时无须 npm 安装。
 
@@ -61,3 +61,7 @@ WebDAV `GET` 使用强 ETag 条件读取，304 不重传正文；`PUT` 首次条
 事件属性只允许固定事件名、`new_story|migrate_existing` 路径、`natural_language|template|blank|paste|file` 入口方式、白名单状态枚举、内容长度桶和结果数量桶。不允许传任意自由文本；输入的 `content`、`text`、`prompt`、`title`、凭据和搜索词不会通过属性清洗。数据库不加密，因为它不含创作内容或账号标识，但仍会在本机保留随机会话行为记录。作者可在调试页手动导出或清空。
 
 `src/funnel.mjs` 从当前标签页事件重放状态，仅为同一 session 推导首次价值与深度交互。控制/实验数据不上传，`scripts/analyze_funnel.py` 只在本地读取主动导出的 JSON，按 session 与变体计算完成率和中位 TTFA / TTFV。首次使用创建链路遵循既有显式授权：不会因为模型已配置就自动发送作者原文。
+
+## 0.4.1 测量修正
+
+以 [测量口径](MEASUREMENT.md) 为当前规范：每次进入开始页新会话，刷新保持，版本/变体隔离；统一主动来源过滤，标题保存计入编辑，首次价值严格要求后续主动动作；场景可见曝光与点击使用固定枚举。分析脚本新增路径分层、开放表达和场景漏斗，拒绝冲突重复 ID 与无效时间戳，排除缺少开始页的截断会话。

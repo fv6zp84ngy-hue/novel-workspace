@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Build a source-only directory and reproducible zip from an explicit allowlist."""
+"""Build full offline-ready packages from an explicit public-file allowlist."""
 import hashlib
 import json
 from pathlib import Path
@@ -23,13 +23,19 @@ for filename in files:
     dest = folder / filename
     dest.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, dest)
-archive = dist / (name + '.zip')
-with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as out:
-    for filename in files:
-        info = zipfile.ZipInfo(name + '/' + filename, date_time=(2026, 1, 1, 0, 0, 0))
-        info.compress_type = zipfile.ZIP_DEFLATED
-        info.external_attr = 0o100644 << 16
-        out.writestr(info, (ROOT / filename).read_bytes())
-checksum = hashlib.sha256(archive.read_bytes()).hexdigest()
-(dist / 'SHA256SUMS').write_text(f'{checksum}  {archive.name}\n')
-print(f'Built {folder}\nBuilt {archive}\nSHA-256 {checksum}\n{len(files)} allowlisted files; no Git history or browser data included.')
+    dest.chmod(0o755 if filename in ('Start.command', 'Start.sh') else 0o644)
+checksums = []
+for archive, prefix in ((dist / (name + '.zip'), name + '/'), (dist / 'novel-workspace-latest.zip', '')):
+    with zipfile.ZipFile(archive, 'w', zipfile.ZIP_DEFLATED) as out:
+        for filename in files:
+            info = zipfile.ZipInfo(prefix + filename, date_time=(2026, 1, 1, 0, 0, 0))
+            info.create_system = 3
+            info.compress_type = zipfile.ZIP_DEFLATED
+            mode = 0o100755 if filename in ('Start.command', 'Start.sh') else 0o100644
+            info.external_attr = mode << 16
+            out.writestr(info, (ROOT / filename).read_bytes())
+    checksum = hashlib.sha256(archive.read_bytes()).hexdigest()
+    checksums.append(f'{checksum}  {archive.name}')
+    print(f'Built {archive}\nSHA-256 {checksum}')
+(dist / 'SHA256SUMS').write_text('\n'.join(checksums) + '\n')
+print(f'{len(files)} allowlisted files per archive; latest ZIP has root-level files for overwrite upgrades.')

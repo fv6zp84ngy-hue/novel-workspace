@@ -18,7 +18,7 @@ for name in files:
     scan=text.replace('kevin.jahns'+'@'+'protonmail.com','') if name=='THIRD_PARTY_LICENSES.md' else text
     if any(term.lower() in (name+'\n'+scan).lower() for term in private_terms) or any(re.search(pattern,scan) for pattern in patterns):
         raise SystemExit('Sensitive or excluded content in '+name)
-    if path.suffix in ('.js','.mjs'):
+    if path.suffix in ('.js','.mjs','.cjs'):
         subprocess.run(['node','--check',str(path)],check=True)
     if path.suffix in ('.md','.html'):
         links=re.findall(r'\]\(([^)]+)\)',text) if path.suffix=='.md' else re.findall(r'(?:href|src)=["\']([^"\']+)["\']',text)
@@ -38,5 +38,6 @@ subprocess.run(['node','--test','tests/core.test.mjs','tests/advanced.test.mjs',
 subprocess.run([sys.executable,'-B','tests/server_test.py'],cwd=ROOT,check=True)
 subprocess.run([sys.executable,'-B','tests/gateway_test.py'],cwd=ROOT,check=True)
 subprocess.run([sys.executable,'-B','tests/analyze_funnel_test.py'],cwd=ROOT,check=True)
+subprocess.run([sys.executable,'-B','tests/launcher_test.py'],cwd=ROOT,check=True)
 print(f'PASS: {len(files)} public files, syntax, links, release hygiene, metadata and core tests')
 print('Run tests/browser.html separately for real IndexedDB integration.')

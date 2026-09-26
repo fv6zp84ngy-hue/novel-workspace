@@ -79,6 +79,22 @@
     "tests/server_test.py",
     "tests/vault.html",
     "tests/vault.mjs",
-    "vendor/yjs.mjs"
+    "vendor/yjs.mjs",
+    "docs/MEASUREMENT.md",
+    "docs/REAL_USER_VALIDATION.md",
+    "docs/validation-record-template.csv",
+    "tests/measurement-browser.cjs",
+    "tests/fixtures/author-validation/world_setting.md",
+    "tests/fixtures/author-validation/chapter1.md",
+    "tests/fixtures/author-validation/character.txt",
+    "tests/fixtures/author-validation/idea_notes.txt",
+    "Start.command",
+    "Start.bat",
+    "Start.sh",
+    "scripts/launch.py",
+    "tests/launcher_test.py",
+    "开始使用.txt",
+    "更新说明.md",
+    "tests/upgrade-browser.cjs"
   ]
 }

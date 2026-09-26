@@ -1,0 +1,33 @@
+# System and editor files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+
+# Secrets; an intentionally sanitized example may be committed later
+.env
+.env.*
+!.env.example
+
+# User manuscripts and runtime data never belong in source control
+data/
+uploads/
+backups/
+exports/
+runtime/
+*.sqlite
+*.sqlite-*
+*.sqlite3
+*.sqlite3-*
+*.db
+*.db-*
+*.log
+
+# Future generated artifacts and dependencies
+node_modules/
+dist/
+coverage/
+.cache/
+
+__pycache__/
+*.pyc
