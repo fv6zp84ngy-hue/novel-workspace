@@ -1,0 +1,446 @@
+{
+  "schema_version": "1.0.0",
+  "project": {
+    "name": "未完待续 · Novel Workspace",
+    "slug": "novel-workspace",
+    "version": "0.4.1",
+    "status": "可运行的本地优先原型；激活漏斗已实现并通过自动测试，真实作者和真实服务验收仍待完成；外部 GitHub 发布未确认",
+    "language": "zh-CN",
+    "license": "MIT",
+    "repository_branch": "codex/public-release",
+    "summary": "面向刚开始写小说的个人作者，将正文、大纲、人物和散落资料放进可搜索、可引用、可继续写作的空间。基础写作不依赖 AI 或云服务。"
+  },
+  "product_context": {
+    "user_problem": "刚开始写作的作者尚未形成稳定的篇章、框架和素材整理方法，内容散落在不同文件和位置，写作时难以定位、关联和复用。",
+    "product_goal": "让新用户用尽量少的前置决策创建可编辑作品，并快速完成一次资料找回、关联和继续写作的价值任务。",
+    "activation_principle": "低摩擦触发 → 立即获得可编辑产物 → 找回并关联资料 → 进入更深的创作交互。",
+    "historical_business_context": {
+      "source": "用户提供的既往项目经历描述",
+      "context": "既往首次交付链路设计以压缩首次价值时间（TTFV）为目标，通过差异化场景入口和开放式自然语言表达促进首次生成。",
+      "reported_metric": "首次价值完成率提升 12%",
+      "verification_status": "属于用户描述的既往业务结果，不是本开源项目或当前原型的测试结果；公开作品集使用前应核实统计口径、基线、样本与时间范围。"
+    }
+  },
+  "onboarding_strategy": {
+    "routes": {
+      "new_story": "开放表达优先；写作场景模板与空白开始为次级入口；本地确定性模板无模型也会创建可编辑结构。",
+      "migrate_existing": "先粘贴或导入 TXT / Markdown；原文保存为待整理资料，再引导作者搜索并打开原文或关联章节。"
+    },
+    "treatment_principle": "按作者当前状态分流，创建作品所需标题、方向和分类均可跳过；无需在首次价值前配置模型或网盘。",
+    "control": "通过 ?onboarding=control 固定为当前 0.3.1 开始页与预览顺序。",
+    "treatment": "通过 ?onboarding=treatment 固定为 new_story / migrate_existing 两条直接路径。"
+  },
+  "activation_model": {
+    "first_artifact": "本机资料库中出现可编辑作品、至少一个章节和资料入口。",
+    "first_value_by_route": {
+      "new_story": "first_artifact_ready 后，用户主动成功保存标题/正文修改或主动添加资料；source=onboarding 的自动创作起点不计数。",
+      "migrate_existing": "import_succeeded 或 paste_saved 后，用户主动打开搜索结果或关联资料到章节。"
+    },
+    "deep_interaction": "同一会话至少三类主动核心行为：edit_saved、material_captured、search_result_opened、material_linked；排除自动、未知来源与失败行为。",
+    "ttfa": "首次出现 first_artifact_ready 的时间戳减去 onboarding_view 时间戳。",
+    "ttfv": "首次出现 first_value_completed 的时间戳减去 onboarding_view 时间戳。"
+  },
+  "instrumentation": {
+    "storage": "独立 IndexedDB novel-workspace-analytics-v1；仅保存在当前浏览器，不连接第三方或服务端。最多保留最近 10,000 条事件，按时间戳清理最旧记录。",
+    "session": "每次进入开始页新建随机会话，刷新保持；版本或变体变化换 ID。会话不等于真人；离线按事件 ID 去重，隔离旧版和缺少开始页的记录。",
+    "content_policy": "仅保存允许事件、枚举、布尔值、内容长度桶、计数桶和时间戳；不记录正文、Prompt 原文、作品/人物/章节名称、搜索词、文件名/路径、模型响应或凭据。",
+    "export_and_cleanup": "作者在 debug/funnel.html 主动导出事件 JSON；清空本地事件需要再次确认。"
+  },
+  "experiment_design": {
+    "assignment": "测试阶段使用 ?onboarding=control 或 ?onboarding=treatment 固定变体，可人工交替发放测试链接；无账号或服务器随机化。",
+    "primary_metrics": [
+      "first_value_completion_rate",
+      "median_ttfv"
+    ],
+    "secondary_metrics": [
+      "median_ttfa",
+      "open_intent_penetration",
+      "deep_interaction_rate"
+    ],
+    "analysis": "使用 scripts/analyze_funnel.py 在本机离线汇总导出事件；仅描述统计，不做显著性推断。",
+    "claim_boundary": "本原型事件测试与可用性观察需单独报告；用户描述的既往首次价值完成率 +12% 只属于历史业务经历，不能写成当前原型 uplift。"
+  },
+  "target_users": [
+    {
+      "segment": "刚开始写小说的个人作者",
+      "needs": [
+        "快速开始而不必先搭建复杂分类体系",
+        "集中保存章节、人物、设定、线索和灵感",
+        "按自然语言或关键词找回资料",
+        "把资料关联到正在写的章节"
+      ]
+    },
+    {
+      "segment": "已有零散稿件、笔记或设定的作者",
+      "needs": [
+        "逐步迁入 TXT 或 Markdown 文件",
+        "导入时允许先保存后整理",
+        "保留原文并建立可搜索索引"
+      ]
+    },
+    {
+      "accessibility_considerations": "减少必填项、分步呈现、提供默认待整理入口和清晰保存状态，以降低认知负担。关于 ADHD 作者的适配目前是设计假设，未经目标用户研究验证，不应表述为已验证效果。"
+    }
+  ],
+  "core_user_journey": [
+    {
+      "step": 1,
+      "name": "选择开始方式",
+      "options": [
+        "新故事",
+        "已有稿件"
+      ],
+      "required_input": "无；想法、方向、标题均可跳过"
+    },
+    {
+      "step": 2,
+      "name": "表达创作意图",
+      "options": [
+        "八类场景模板",
+        "开放式自然语言",
+        "空白开始"
+      ],
+      "required_input": "无"
+    },
+    {
+      "step": 3,
+      "name": "预览并创建作品",
+      "result": "生成可编辑的作品结构；模板不会覆盖导入原稿"
+    },
+    {
+      "step": 4,
+      "name": "写作或加入资料",
+      "options": [
+        "直接编辑章节",
+        "粘贴资料",
+        "导入 TXT / Markdown"
+      ],
+      "required_input": "粘贴时仅要求正文；导入时仅要求选择文件"
+    },
+    {
+      "step": 5,
+      "name": "检索、关联并继续",
+      "result": "用关键词或可选语义能力找回原文，关联章节后继续写作"
+    }
+  ],
+  "requirements": {
+    "must_have": [
+      "无模型账户时可创建多部作品、编辑章节、管理大纲和任务",
+      "导入、导出 UTF-8 TXT / Markdown，支持资料搜索和原文定位",
+      "资料允许先进入待整理；分类、标签和章节关联可以之后补充或修改",
+      "显示自动保存状态，冲突时保留副本并允许恢复历史",
+      "本机加密保存和加密备份，提供恢复前校验及容量整理预览",
+      "界面主要使用面向作者的日常语言，并提供新手指南"
+    ],
+    "optional_capabilities": [
+      "用户自带模型服务的分类建议、向量索引、语义检索、带出处问答和草稿生成",
+      "用户自带 WebDAV 的加密快照、恢复副本及单章节正文协作"
+    ],
+    "out_of_scope": [
+      "由项目运营的模型代理、公共 API Key 或代付 token",
+      "项目运营云数据库或托管用户稿件",
+      "WebSocket、亚秒级同步、在线光标和人员状态",
+      "章节以外字段的实时合并、自动改写原稿、知识图谱推理",
+      "PDF / DOCX、文件夹监控、密码重置、完整全站双语"
+    ]
+  },
+  "information_architecture": {
+    "primary_areas": [
+      "开始创作",
+      "写作",
+      "资料",
+      "找资料",
+      "任务",
+      "备份与恢复"
+    ],
+    "optional_settings": [
+      "智能助手",
+      "安全与服务",
+      "WebDAV 协作"
+    ],
+    "material_categories": [
+      {
+        "id": "inbox",
+        "label": "待整理",
+        "purpose": "接住尚未确定归属的内容"
+      },
+      {
+        "id": "character",
+        "label": "人物",
+        "purpose": "人物目标、关系、转变与人物卡"
+      },
+      {
+        "id": "plot",
+        "label": "情节冲突",
+        "purpose": "事件、阻碍、转折与因果"
+      },
+      {
+        "id": "world",
+        "label": "场景设定",
+        "purpose": "地点、规则、氛围与背景设定"
+      },
+      {
+        "id": "clue",
+        "label": "线索时间",
+        "purpose": "伏笔、证据、时间顺序与回收节点"
+      },
+      {
+        "id": "inspiration",
+        "label": "灵感碎片",
+        "purpose": "暂未成形的句子、画面和点子"
+      },
+      {
+        "id": "reference",
+        "label": "外部参考",
+        "purpose": "作者主动保存的外部资料"
+      }
+    ],
+    "field_policy": "只要求完成当前动作所必需的输入；标题、方向、分类、标签和章节关联默认可选。"
+  },
+  "technical_architecture": {
+    "style": "本地优先、无构建时前端框架依赖、可选本机网关",
+    "frontend": [
+      "HTML",
+      "CSS",
+      "原生 ES Modules",
+      "Web Crypto API",
+      "IndexedDB"
+    ],
+    "local_gateway": "Python 3 标准库，仅绑定 127.0.0.1；为用户自带模型与 WebDAV 凭据提供受限出站代理。",
+    "optional_collaboration": "固定版本的 Yjs / lib0 浏览器 bundle；以 Y.Text 合并单章节正文，通过 WebDAV 条件请求轮询。",
+    "test_tooling": [
+      "Node.js 内置测试",
+      "Python 标准库脚本",
+      "合成浏览器与模拟服务验收页面"
+    ],
+    "runtime_requirements": {
+      "local_use": "Python 3.10+",
+      "development_checks": "Node.js 22+"
+    },
+    "data_flow": "默认资料只保存在当前浏览器的加密 IndexedDB；仅在作者主动点击模型调用或同步时发送相应内容。"
+  },
+  "data_and_security": {
+    "local_vault": {
+      "algorithm": "AES-256-GCM",
+      "key_derivation": "PBKDF2-SHA256, 600000 iterations",
+      "storage": "加密后的 IndexedDB 快照",
+      "unlock_requirement": "至少 12 字符的资料库密码；遗忘后无法恢复"
+    },
+    "backup": {
+      "default": "加密 JSON 快照",
+      "restore_behavior": "校验后恢复为独立副本",
+      "plaintext_export": "TXT 导出为明文，需由作者妥善保管"
+    },
+    "credentials": {
+      "model_api_key": "仅保留在本机 Python 服务内存，不写入资料库或备份",
+      "webdav_credentials": "仅用于当前请求或协作窗口内存，不写入备份"
+    },
+    "retention": {
+      "decrypted_snapshot_limit_mib": 40,
+      "cleanup": "预览保留策略、下载备份并确认后人工删除旧历史；可重建向量缓存可单独清理"
+    },
+    "known_security_limits": [
+      "不提供云端托管或账号恢复",
+      "加密不清除旧浏览器或磁盘上的历史明文残留",
+      "解锁期间页面内存中的文字不受静态加密保护",
+      "本项目未经第三方安全认证或专业渗透测试"
+    ]
+  },
+  "ai_and_sync": {
+    "ai": {
+      "billing": "调用费用由使用者自己的模型服务商账户承担；本项目不代收费用、不提供公共代理或免费 token。",
+      "consent": "每次明确操作后发送选定的问题、材料片段或创作指令。",
+      "retrieval": "增量向量索引、相似度召回前五候选、回答要求有效出处编号并显示来源供作者核对。",
+      "safety_boundary": "引用校验不等于语义忠实保证；AI 建议需作者确认，草稿另存且不覆盖原文。"
+    },
+    "webdav": {
+      "storage_cost": "使用者自行承担其网盘套餐费用。",
+      "snapshot_sync": "上传加密快照；读取后恢复为新副本。",
+      "live_merge": "仅协作窗口打开时同步单章正文；前台约 3 秒轮询、后台约 10 秒轮询，实际延迟依浏览器、网络和服务商而变化。",
+      "conflict_control": "依赖强 ETag 和条件写；412 时重新读取并有限合并重试，无法安全合并时保留本机内容并暂停远端覆盖。",
+      "limitations": [
+        "不承诺亚秒级推送",
+        "同一句语义冲突需人工检查",
+        "标题、任务、目录、资料分类和删除不参与实时合并",
+        "真实网盘服务商兼容性仍需验收"
+      ]
+    }
+  },
+  "measurement": {
+    "product_metrics_to_track": [
+      {
+        "name": "首次价值完成率",
+        "definition": "new_story 与 migrate_existing 按各自 first_value_completed 条件达成的会话占比。",
+        "status": "本地事件与统计口径已实现，尚无真人任务样本"
+      },
+      {
+        "name": "首次价值时间 TTFV",
+        "definition": "first_value_completed - onboarding_view；新故事与已有内容分别按路径条件计算。",
+        "status": "计算口径已实现，尚无真人任务耗时"
+      },
+      {
+        "name": "开放意图表达渗透率",
+        "definition": "new_story 中第一次实际提交为 natural_language 的会话数 / new_story 会话数；按 control / treatment 分组，另列 template、blank、no_submission。",
+        "status": "离线分析已实现；真人样本为 0"
+      },
+      {
+        "name": "资料找回成功率",
+        "definition": "搜索后打开正确原文或完成章节关联的会话比例。",
+        "status": "建议在可用性测试中观察"
+      },
+      {
+        "name": "保存与恢复可靠性",
+        "definition": "合成故障和真实设备场景中可恢复已确认提交内容的比例及丢失范围。",
+        "status": "合成场景已覆盖部分；真机和极端故障待验"
+      },
+      {
+        "name": "深度交互率",
+        "definition": "同一会话至少三类主动核心行为：edit_saved、material_captured、search_result_opened、material_linked；排除自动、未知来源与失败行为。",
+        "status": "主动行为状态机已实现；真人样本为 0"
+      },
+      {
+        "name": "场景效果",
+        "definition": "每会话每场景去重曝光/点击；CTR=选择/曝光；首次提交前最后选择场景归因，价值转化=归因首次价值/选择。",
+        "status": "可见曝光、选择事件及离线漏斗已实现；真人样本为 0"
+      }
+    ],
+    "analytics_privacy": "本地漏斗事件已实现；只写独立 IndexedDB，不发送第三方。自动测试覆盖字段白名单；尚未做真实用户研究或生产埋点。",
+    "version": "0.4.1",
+    "field_mapping": {
+      "input_mode": "entry_mode（沿用原字段）",
+      "import_completed": [
+        "import_succeeded",
+        "paste_saved"
+      ],
+      "source": "props.source",
+      "scenario_id": "props.scenario_id（固定枚举）"
+    },
+    "time_boundary": "TTFA/TTFV 从开始页曝光计时，不含资料库密码步骤；真人测试另记打开网址后的总耗时。",
+    "specification": "docs/MEASUREMENT.md"
+  },
+  "implementation_status": {
+    "implemented_in_prototype": [
+      "本地写作与多作品管理",
+      "大纲、章节、资料和任务",
+      "TXT / Markdown 导入导出",
+      "规则分类、关键词检索和章节引用",
+      "本机加密、版本历史、冲突副本与加密备份",
+      "可选模型能力界面与本机网关",
+      "WebDAV 加密快照与单章正文协作",
+      "Control / Treatment 首次使用路径",
+      "本地匿名事件、首次价值状态机、漏斗导出与离线汇总",
+      "合成浏览器、故障和模拟服务验收工具",
+      "PRD、技术规格、设计、分步开发、风险与发布文档",
+      "0.4.1 主动首次价值与深度交互修复",
+      "new_story 开放表达渗透率及场景入口离线分析",
+      "真人首次任务协议、空白记录表和四份合成迁移素材"
+    ],
+    "synthetic_validation": [
+      "自动化测试结果与执行环境见 docs/TEST_REPORT.md；合成测试不能证明真人任务完成或业务提升。"
+    ],
+    "not_yet_verified": [
+      "真实新手零指导完成任务",
+      "ADHD 作者目标用户研究",
+      "真实模型服务的质量、兼容性和账单对照",
+      "真实 WebDAV 服务商的强 ETag / 条件写兼容性",
+      "iOS / Android / macOS / Windows 实体设备测试",
+      "断电、磁盘满和浏览器驱逐下的实际恢复表现",
+      "远程 GitHub Actions 与外部仓库发布"
+    ],
+    "prototype_outcome_claims": "不得将用户描述的既往业务提升、模拟测试或设计目标表述为本项目已上线成果。",
+    "measurement_fix": "代码与测试材料已实现；真人 >=5 人验收待执行，不能标记研究完成。"
+  },
+  "roadmap": [
+    {
+      "phase": "1",
+      "name": "公开版可复现与审查",
+      "deliverables": [
+        "干净环境启动说明",
+        "固定白名单压缩包",
+        "敏感信息与依赖许可复核",
+        "CI / 构建结果记录"
+      ],
+      "gate": "从干净副本按文档成功构建和启动"
+    },
+    {
+      "phase": "2",
+      "name": "真实作者可用性验证",
+      "deliverables": [
+        "新手首次任务脚本",
+        "TTFV 与找回任务观察记录",
+        "分类与必填字段理解测试",
+        "屏幕阅读器与键盘测试"
+      ],
+      "gate": "报告实际样本、失败点和修改证据，不把小样本当普遍结论"
+    },
+    {
+      "phase": "3",
+      "name": "真实服务与设备验收",
+      "deliverables": [
+        "限额模型账户验证",
+        "专用 WebDAV 目录并发测试",
+        "实体设备和输入法测试",
+        "恢复与边界条件报告"
+      ],
+      "gate": "使用合成稿件和脱敏记录；每项逐条通过"
+    },
+    {
+      "phase": "4",
+      "name": "公开仓库发布",
+      "deliverables": [
+        "发布标签与变更日志",
+        "公开仓库和安装指南",
+        "用户问题与贡献流程"
+      ],
+      "gate": "确认远端仓库身份、默认分支、CI 与归档文件内容一致"
+    }
+  ],
+  "open_source_release": {
+    "license": "MIT",
+    "public_package_policy": "仅纳入源码白名单、公开文档、必要构建产物和许可证；排除 .git、原始背景叙事、真实稿件、备份、密钥、个人路径和本地临时数据。",
+    "release_artifact": {
+      "version": "0.4.1",
+      "path": "dist/novel-workspace-0.4.1.zip",
+      "status": "由 scripts/build_release.py 按白名单本地构建；外部 GitHub 发布未执行。SHA-256 见 dist/SHA256SUMS。"
+    },
+    "sensitive_material_policy": "公开材料不得包含原始 onboarding 叙事、非公开业务数据、12% 指标原始证据、真实用户信息、API Key、网盘凭据或用户本机绝对路径。"
+  },
+  "source_documents": [
+    "README.md",
+    "docs/PRD.md",
+    "docs/SPEC.md",
+    "docs/DESIGN.md",
+    "docs/DEVELOPMENT.md",
+    "docs/REQUIREMENTS.md",
+    "docs/FIELD_GUIDE.md",
+    "docs/TEST_REPORT.md",
+    "docs/ACCEPTANCE.md",
+    "docs/RISK_REVIEW.md",
+    "docs/LIVE_MERGE_DESIGN.md",
+    "SECURITY.md",
+    "PRIVACY.md",
+    "CONTRIBUTING.md",
+    "docs/MEASUREMENT.md",
+    "docs/REAL_USER_VALIDATION.md"
+  ],
+  "validation": {
+    "measurement_regression": "自动化结果见 docs/TEST_REPORT.md；合成事件与隔离浏览器测试不等于真人证据。",
+    "real_user_gate": "至少 5 位真人，两条路径均覆盖，具备任务结果、失败原因和访谈记录；当前未达成。",
+    "outcome_status": "没有可归因的原型 uplift；不得挪用历史业务 +12%。"
+  },
+  "real_user_validation": {
+    "status": "pending_participants",
+    "target_sample": "5–8",
+    "minimum_completed": 5,
+    "completed": 0,
+    "segments": [
+      "A：写作不足 3 个月，有小说想法，没有稳定整理方式",
+      "B：已有分散 TXT / Markdown 或其他文档素材"
+    ],
+    "protocol": "docs/REAL_USER_VALIDATION.md",
+    "record_template": "docs/validation-record-template.csv",
+    "synthetic_materials": "tests/fixtures/author-validation/",
+    "results": [],
+    "privacy": "原始参与者记录与事件保存在被 Git 排除的 exports/；发布白名单只包含空白模板和合成素材。"
+  }
+}
