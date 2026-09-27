@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; connect-src 'self'; object-src 'none'; base-uri 'none';">
+  <meta name="referrer" content="no-referrer">
+  <title>本地漏斗验收 · 未完待续</title>
+  <link rel="stylesheet" href="../author.css?v=0.4.0">
+  <style>
+    .debug-main{max-width:1400px;margin:34px auto;padding:0 24px}.debug-header{display:flex;justify-content:space-between;align-items:flex-start;gap:18px;flex-wrap:wrap}.debug-header h1{font-size:1.8rem;margin-bottom:8px}.debug-actions{display:flex;gap:8px;flex-wrap:wrap}.summary-cards{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin:22px 0}.summary-card{padding:18px;border:1px solid var(--line);border-radius:10px;background:var(--surface)}.summary-card span{display:block;color:var(--muted);font-size:.8rem}.summary-card strong{display:block;font-size:1.4rem;margin-top:6px}.funnel-wrap{overflow:auto;border:1px solid var(--line);border-radius:10px;background:var(--surface)}.funnel-table{border-collapse:collapse;width:100%;font-size:.82rem}.funnel-table th,.funnel-table td{text-align:left;padding:12px;border-bottom:1px solid var(--line);white-space:nowrap}.funnel-table th{background:var(--paper);position:sticky;top:0}.yes{color:var(--success);font-weight:650}.no{color:var(--muted)}.debug-note{margin:18px 0;padding:16px;border-radius:10px;background:var(--soft);color:var(--soft-ink);font-size:.875rem}.empty-state{padding:36px;text-align:center;color:var(--muted)}.debug-status{min-height:1.4em;color:var(--muted);font-size:.82rem}dialog{max-width:480px}dialog form{display:grid;gap:12px}.dialog-actions{display:flex;justify-content:flex-end;gap:8px}@media(max-width:700px){.debug-main{padding:0 14px;margin:24px auto}.summary-cards{grid-template-columns:repeat(2,minmax(0,1fr))}.debug-header h1{font-size:1.5rem}}
+  </style>
+  <script type="module" src="funnel-debug.mjs?v=0.4.1"></script>
+</head>
+<body>
+  <header class="topbar"><a class="brand" href="../"><span class="brand-mark">续</span><span>未完待续<small>本地漏斗验收</small></span></a><span class="muted small">事件仅保存在此浏览器</span></header>
+  <main class="debug-main">
+    <div class="debug-header"><div><p class="eyebrow">LOCAL TESTING · NO THIRD-PARTY ANALYTICS</p><h1>首次使用漏斗</h1><p class="muted small">检查每个测试会话走到哪一步，导出后用离线脚本汇总。</p></div><div class="debug-actions"><button id="refresh" class="secondary">刷新事件</button><button id="export" class="primary">导出 JSON</button><button id="clear" class="quiet danger">清空测试数据</button></div></div>
+    <div class="debug-note">当前入口变体（表格展示两组）：<strong id="current-variant">读取中</strong>。可从工作台使用 <code>?onboarding=control</code> 或 <code>?onboarding=treatment</code> 固定测试版本。事件不包含输入原文、作品名、搜索词、稿件或凭据。</div>
+    <section class="summary-cards" aria-label="事件概览"><div class="summary-card"><span>漏斗版本</span><strong id="funnel-version">—</strong></div><div class="summary-card"><span>本地事件数</span><strong id="event-total">0</strong></div><div class="summary-card"><span>测试会话数</span><strong id="session-total">0</strong></div><div class="summary-card"><span>control / treatment</span><strong id="variant-count">0 / 0</strong></div></section>
+    <div class="debug-note">当前只展示 0.4.1 口径；已隔离旧版事件 <span id="legacy-count">0</span> 条，导出仍保留原始记录。自动创作起点不计首次价值；只改章节标题并成功保存属于主动编辑。<br>离线运行 <code>python3 scripts/analyze_funnel.py ./exports</code>，查看新故事开放意图渗透率与场景曝光 → 点击 → 提交 → 首次价值。隐藏的场景卡不记曝光。</div>
+    <button id="run-cases" class="secondary">运行 Case A / B 合成状态机案例</button>
+    <p id="case-results" class="small" role="status">Case A：创建后直接退出，首次价值应为 false。Case B：创建后主动修改标题并保存，首次价值应为 true。按钮只验证状态机；真实 UI 操作按任务手册验收。</p>
+    <div id="table-wrap" class="funnel-wrap"><div class="empty-state">正在读取本地事件…</div></div>
+    <p id="status" class="debug-status" role="status" aria-live="polite"></p>
+    <p class="small muted">TTFA = 首次出现可编辑作品时间 − 开始页时间；TTFV = 按路径完成首次价值时间 − 开始页时间。空值表示当前会话尚未完成该步。小样本只作可用性观察，不代表统计显著性。</p>
+  </main>
+  <dialog id="clear-dialog" aria-labelledby="clear-title"><form method="dialog"><h2 id="clear-title">清空本地漏斗测试数据？</h2><p class="small muted">这会删除此浏览器内全部测试事件，不影响作品和稿件。此操作无法撤销。</p><label><input id="clear-ack" type="checkbox"> 我已确认将删除全部本地漏斗事件</label><div class="dialog-actions"><button id="cancel-clear" class="secondary" value="cancel">取消</button><button id="confirm-clear" class="primary danger" value="confirm" disabled>确认清空</button></div></form></dialog>
+</body>
+</html>
