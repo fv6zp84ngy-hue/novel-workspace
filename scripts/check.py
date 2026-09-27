@@ -14,7 +14,12 @@ private_terms = ['abo'+'arding','first'+'-value-studio','First '+'Value Studio',
 patterns = [r'gh[pousr]_[A-Za-z0-9]{20,}',r'github_pat_[A-Za-z0-9_]{20,}',r'sk-[A-Za-z0-9_-]{24,}',r'AKIA[A-Z0-9]{16}',r'-----BEGIN [A-Z ]*PRIVATE KEY-----',r'[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}']
 for name in files:
     path=ROOT/name
-    text=path.read_text()
+    raw=path.read_bytes()
+    if path.suffix == '.png':
+        if any(term.lower().encode() in raw.lower() for term in private_terms) or any(re.search(pattern.encode(),raw) for pattern in patterns):
+            raise SystemExit('Sensitive or excluded content in '+name)
+        continue
+    text=raw.decode('utf-8')
     scan=text.replace('kevin.jahns'+'@'+'protonmail.com','') if name=='THIRD_PARTY_LICENSES.md' else text
     if any(term.lower() in (name+'\n'+scan).lower() for term in private_terms) or any(re.search(pattern,scan) for pattern in patterns):
         raise SystemExit('Sensitive or excluded content in '+name)
